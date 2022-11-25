@@ -14,33 +14,34 @@ class WebPage
     int impressions;
     int outGoingLinks;
     float pageRank;
+    float clickThroughRate;
     float pageScore;
 
-    set<string> keyWords;
 
     static int index;
 public:
-    // Paramterized constructor to initialize all attributes of the webpage
-    WebPage(string hyperLink, int impressions, set<string>& keyWords, int click = 0, int outGoingLink = 0);
+    // Default constructor to initialize the hyperlink
+    WebPage(string hyperlink);
 
     // setters and getters for the attributes
     void setPageRank(float pageRank);
     float getPageRank();
 
-    void setpageScore();
+    void updatePageScore();
     float getPageScore();
 
     void setOutGoingLinks(int outGoingLinks);
     int getOutGoingLinks();
 
     // updates and get impressions and clicks for the CTR
-    void updatedImpressions();
+    void setImpressions(int impressions);
+    void updateImpressions();
     int getImpressions();
 
-    void updatedClicks();
+    void setClicks(int clicks);
+    void updateClicks();
     int getClicks();
 
-    set<string> getKeyWords();
 };
 
 #endif
