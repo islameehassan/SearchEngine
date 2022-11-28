@@ -117,10 +117,13 @@ void SearchEngine::PageRankAlgo(){
             CurrPageRank[i] = score;
         }
 
+        // calculate the euclidean norm by summing the square of the score difference and then take the square root
         scoreNorm = norm(PrevPageRank, CurrPageRank);
 
-    }while(scoreNorm>ERROR);
+    }while(scoreNorm>ERROR); // keep iterating as long as the norm is greater than the norm
 
+
+    // Update the PageRank vector
     for(int i = 1; i <= CurrPageRank.size(); i++){
         PageRank[i] = CurrPageRank[i];
     }
@@ -128,11 +131,71 @@ void SearchEngine::PageRankAlgo(){
 }
 
 float SearchEngine::norm(vector<float>& PrevRank, vector<float>& CurrRank){
-    float euclideanNorm;
+    float euclideanNorm = 0;
 
     for(int i = 1; i <= CurrRank.size(); i++){
-        euclideanNorm = pow(abs(CurrRank[i] - PrevRank[i]), 2);
+        euclideanNorm += pow(abs(CurrRank[i] - PrevRank[i]), 2);
     }    
 
     return sqrtf(euclideanNorm);
+}
+
+void SearchEngine::Search(string searchQuery){
+    
+    set<string> results;
+
+    // Search Query with quotations
+    if(searchQuery[0] == '\"'){
+
+        // find the first occurence of a letter to avoid redundant spaces before the word
+        // by the user
+        int firstOccurence = 0;
+        for(int i = 0; i < searchQuery.size(); i++){
+            if(searchQuery[i] != ' ' || searchQuery[i] != '\"'){
+                firstOccurence = i;
+                break;
+            }
+        }
+        // extract the keyword starting from the first letter till the end, excluding the last quotation mark
+        results = QuotationQuery(searchQuery.substr(firstOccurence, searchQuery.size() - firstOccurence- 1));
+
+        // Display results, if any
+        displayResults(results);
+    }
+    else{
+
+        int andIndex = searchQuery.find("AND", 0); // if the query has AND keyword
+    
+        stringstream s(searchQuery);
+        set<string> tempKeywords;
+
+        // extract the keywords from the search query string
+        string keyword;
+        while(getline(s,keyword, ' ')){
+            tempKeywords.insert(keyword);
+
+            getline(s, keyword, ' '); // ignore the AND
+        }
+        
+        if(andIndex != -1) // Search Query with AND
+            results = ANDQuery(tempKeywords);
+        else // Search Query containing OR or plain
+            results = ORQuery(tempKeywords);
+
+        // display results
+        displayResults(results);
+    }
+
+}
+
+
+void SearchEngine::displayResults(set<string> results){
+
+    if(results.size() == 0)
+        cout << "No Web Page found that matches your search\n";
+    else{
+        int index = 0;
+        for(string result:results)
+            cout << ++index << ".\t" << result << '\n';
+    }
 }

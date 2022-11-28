@@ -31,6 +31,8 @@ class SearchEngine{
 
     float norm(vector<float>& PrevRank, vector<float>& CurrRank); // calculate the euclidean norm to check if
                                          // it is the time to stop PageRank or not
+    
+    void displayResults(set<string> results); // display the web pages according to the search query
 public:
     // JumpStart the engine by feeding in all input files to initialize the web Graph and the keywords Trie Tree
     SearchEngine(fstream WebGraph,fstream KeyWords,fstream Impressions);
@@ -38,8 +40,6 @@ public:
     void Menu(); // Menu displayed for the user, where console is cleared every time the user chooses.
 
     void PageRankAlgo(); // run the page rank algorithm to get page rank scores for all webpages
-
-    void updatePagesScore(); // update scores 
 
     void Search(string searchQuery); // run a search using a search query from the user
 
