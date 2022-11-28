@@ -1,9 +1,23 @@
 #include "WebPage.h"
 
 WebPage::WebPage(string hyperlink){
+    index++;
+    
+    webPageIndex = index;
     this->hyperLink = hyperLink;
     this->clicks = 0;
     this->impressions = 0;
+    this->outGoingLinks = 0;
+    
+}
+
+WebPage::WebPage(const WebPage& W){
+    this->hyperLink = W.hyperLink;
+    this->impressions = W.impressions;
+    this->outGoingLinks = W.outGoingLinks;
+    this->index = W.index;
+    this->pageRank = W.pageRank;
+    this->pageScore = W.pageScore;
 }
 
 void WebPage::setPageRank(float pageRank){
@@ -42,8 +56,8 @@ int WebPage::getImpressions(){
     return impressions;
 }
 
-void WebPage::setOutGoingLinks(int outGoingLinks){
-    this->outGoingLinks = outGoingLinks;
+void WebPage::updateOutGoingLinks(){
+    outGoingLinks++;
 }
 
 int WebPage::getOutGoingLinks(){

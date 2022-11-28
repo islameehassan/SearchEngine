@@ -17,11 +17,13 @@ class WebPage
     float clickThroughRate;
     float pageScore;
 
-
-    static int index;
 public:
+    static int index;
+    int webPageIndex;
     // Default constructor to initialize the hyperlink
     WebPage(string hyperlink);
+
+    WebPage(const WebPage& W); // copy constructor
 
     // setters and getters for the attributes
     void setPageRank(float pageRank);
@@ -30,7 +32,7 @@ public:
     void updatePageScore();
     float getPageScore();
 
-    void setOutGoingLinks(int outGoingLinks);
+    void updateOutGoingLinks();
     int getOutGoingLinks();
 
     // updates and get impressions and clicks for the CTR
@@ -43,5 +45,7 @@ public:
     int getClicks();
 
 };
+
+int WebPage::index = 0;
 
 #endif
