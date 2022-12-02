@@ -17,20 +17,23 @@ TrieNode* Trie::createNode(){
 
 TrieNode* Trie::_insert(string word){
     TrieNode* nCrawl = this->root;
+    
 
     for(int i = 0; i < word.size();i++){
         int index = word[i] - 'a';
 
         if(word[i] == ' ')
-            index = 26;
+            continue;
 
         // create a node for a char in the word if not created yet
-        if(nCrawl->children[index] == NULL)
+        if(!nCrawl->children[index]){
             nCrawl->children[index] = createNode();
+        }
+
         
         // traverse
         nCrawl = nCrawl->children[index];
-    } 
+    }
     nCrawl->isTerminal = true;
 
     return nCrawl;

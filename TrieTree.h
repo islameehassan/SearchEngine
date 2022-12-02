@@ -3,7 +3,7 @@
 #include "TrieNode.h"
 using namespace std;
 
-#define ALPHAPET 27 // 26 + 1 to account for the space character
+#define ALPHAPET 26
 
 
 

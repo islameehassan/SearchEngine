@@ -1,7 +1,5 @@
 #ifndef SEARCH_ENGINE_H
 #define SEARCH_ENGINE_H
-#define ERROR 0.001
-
 
 #include <iostream>
 #include <sstream>
@@ -14,11 +12,14 @@
 #include "WebPage.h"
 #include "TrieTree.h"
 using namespace std;
+// CONSTANTS
+#define ERROR 0.001
+#define DAMPING 0.15
 
 
-auto comp = [](WebPage A, WebPage B) {return A.getPageScore() > B.getPageScore();};
 
 class SearchEngine{
+    public:
     int noWebPages;
     vector<vector<float>> WebGraph; // the web graph constructed to calculate the web pages rank
     vector<float> PageRank;
@@ -33,9 +34,8 @@ class SearchEngine{
                                          // it is the time to stop PageRank or not
     
     void displayResults(set<string> results); // display the web pages according to the search query
-public:
     // JumpStart the engine by feeding in all input files to initialize the web Graph and the keywords Trie Tree
-    SearchEngine(fstream WebGraph,fstream KeyWords,fstream Impressions);
+    SearchEngine(ifstream &WebGraph,ifstream &KeyWords,ifstream &Impressions);
 
     void Menu(); // Menu displayed for the user, where console is cleared every time the user chooses.
 

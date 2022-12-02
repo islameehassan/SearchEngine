@@ -20,6 +20,7 @@ class WebPage
 public:
     static int index;
     int webPageIndex;
+    WebPage();
     // Default constructor to initialize the hyperlink
     WebPage(string hyperlink);
 
@@ -45,7 +46,5 @@ public:
     int getClicks();
 
 };
-
-int WebPage::index = 0;
 
 #endif

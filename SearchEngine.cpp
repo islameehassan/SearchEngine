@@ -1,39 +1,38 @@
 #include "SearchEngine.h"
 
-SearchEngine::SearchEngine(fstream WebGraphFile,fstream KeywordsFile,fstream ImpressionsFile){
+SearchEngine::SearchEngine(ifstream &WebGraphFile,ifstream &KeywordsFile,ifstream &ImpressionsFile){
     Keywords = Trie(); // init the trie tree
 
     // Get the keywords from the Keywords file
-    freopen("KeyWords.csv", "r", stdin);
     string line;
+    getline(KeywordsFile,line);
 
-    while(!KeywordsFile.eof()){
-        getline(cin,line);
+
+    while(line != ""){
         stringstream s(line);
 
         // get the hyperlink of the webpage
         string hyperlink;
         getline(s,hyperlink,',');
-
         // map each web page object to its hyperlink through the WebPages Map
         // insert the keyword along with the hyperlink of the web page in the trie tree
         string keyWord;
+        WebPages[hyperlink] = WebPage(hyperlink);
         while(getline(s,keyWord, ',') || getline(s,keyWord, '\n')){
-            WebPages[hyperlink] = WebPage(hyperlink);
             Keywords.insertWord(keyWord, hyperlink);
         }
+
+        getline(KeywordsFile,line);
     }
     KeywordsFile.close();
 
-
     // Get # of impressions from the impressions file
-    freopen("Impressions.csv", "r", stdin);
     line = "";
+    getline(ImpressionsFile,line);
     int noOfWebPages; // no of web pages is the number of lines in this file
-     while(!ImpressionsFile.eof()){
+    while(line != ""){
         noOfWebPages++;
 
-        getline(cin,line);
         stringstream s(line);
 
         // get the hyperlink of the webpage
@@ -53,6 +52,8 @@ SearchEngine::SearchEngine(fstream WebGraphFile,fstream KeywordsFile,fstream Imp
         // set the web page's number of clicks and impressions
         WebPages[hyperlink].setImpressions(noImpressions);
         WebPages[hyperlink].setClicks(noClicks);
+
+        getline(ImpressionsFile, line);
     }
     ImpressionsFile.close();
 
@@ -67,7 +68,7 @@ SearchEngine::SearchEngine(fstream WebGraphFile,fstream KeywordsFile,fstream Imp
         v.resize(noOfWebPages+1);
     
     int index = 0;
-     while(!WebGraphFile.eof()){
+    while(!WebGraphFile.eof()){
         getline(cin,line);
         stringstream s(line);
 
@@ -85,8 +86,8 @@ SearchEngine::SearchEngine(fstream WebGraphFile,fstream KeywordsFile,fstream Imp
         int indexInWebGraph1 = WebPages[hyperlink1].webPageIndex;
         int indexInWebGraph2 = WebPages[hyperlink2].webPageIndex;
         
-        // mark that there is an edge from web page 1 to web page 2
-        WebGraph[indexInWebGraph1][indexInWebGraph2] = 1;
+        // mark that there is an edge from web page 1 to web page 2, equal to 1 - DAMPING FACTOR
+        WebGraph[indexInWebGraph2][indexInWebGraph1] = 1 - DAMPING;
     }
     WebGraphFile.close();
 }
@@ -94,13 +95,16 @@ SearchEngine::SearchEngine(fstream WebGraphFile,fstream KeywordsFile,fstream Imp
 void SearchEngine::PageRankAlgo(){
     // Store the ranks of pages in he current and previous iteration for comparison purposes
     vector<float> CurrPageRank(noWebPages+1);
-    vector<float> PrevPageRank(noWebPages+1,1);
+    vector<float> PrevPageRank(noWebPages+1,1.0/noWebPages);
 
-    // Store the pages' outgoing links no
-    vector<int> outGoingLinks(noWebPages+1);
-    int i = 0;
-    for(auto p: WebPages)
-        outGoingLinks[i] = p.second.getOutGoingLinks();
+    int i = 1;
+    for(auto p: WebPages){
+        int links = p.second.getOutGoingLinks();
+        int index = p.second.index;
+        for(int j = 1; j <= noWebPages; j++){
+            WebGraph[j][index] *= 1.0/links;
+        }
+    }
 
 
     float scoreNorm;
@@ -114,13 +118,13 @@ void SearchEngine::PageRankAlgo(){
             for(int j = 1; j <= noWebPages; j++){
                 score = score + (WebGraph[j][i] * PrevPageRank[j]);
             }
-            CurrPageRank[i] = score;
+            CurrPageRank[i] = score + (1.0/noWebPages * DAMPING); // adding the damping factor 
         }
 
         // calculate the euclidean norm by summing the square of the score difference and then take the square root
         scoreNorm = norm(PrevPageRank, CurrPageRank);
 
-    }while(scoreNorm>ERROR); // keep iterating as long as the norm is greater than the norm
+    }while(scoreNorm>ERROR); // keep iterating as long as the norm is greater than the error
 
 
     // Update the PageRank vector
@@ -198,4 +202,47 @@ void SearchEngine::displayResults(set<string> results){
         for(string result:results)
             cout << ++index << ".\t" << result << '\n';
     }
+}
+
+
+set<string>SearchEngine::ANDQuery(set<string> _Keywords){
+    set<string> results;
+
+    results = this->Keywords.search(*_Keywords.begin());
+    for(string keyword: _Keywords){
+        set<string> temp = Keywords.search(keyword); // extracting the web pages from the trie tree
+
+        // erasing web pages that do not contain the current keyword
+        for(string res: results){
+            if(temp.find(res) == temp.end()){
+                results.erase(res);
+            }
+        }
+
+        // CORNER CASE: the first keyword does not have any web pages associated with it
+        if(results.size() == 0)
+            results = temp;
+    }
+
+    return results;
+
+}
+
+set<string> SearchEngine::ORQuery(set<string> _Keywords){
+    set<string> results;
+
+    for(string keyword: _Keywords){
+        // inserting all web pages associated with the keyword
+        set<string> temp = this->Keywords.search(keyword);
+        results.insert(_Keywords.begin(), _Keywords.end());
+    }
+
+    return results;
+}
+
+set<string> SearchEngine::QuotationQuery(string keyword){
+    set<string> results;
+
+    results = this->Keywords.search(keyword);
+    return results;
 }

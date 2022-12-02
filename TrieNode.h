@@ -4,7 +4,7 @@
 #include <set>
 using namespace std;
 
-#define ALPHAPET 27
+#define ALPHAPET 26
 
 struct TrieNode{
     TrieNode* children[ALPHAPET];

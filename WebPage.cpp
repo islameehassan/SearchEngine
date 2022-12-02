@@ -1,5 +1,7 @@
 #include "WebPage.h"
 
+
+WebPage::WebPage(){}
 WebPage::WebPage(string hyperlink){
     index++;
     
@@ -73,3 +75,5 @@ void WebPage::updatePageScore(){
 float WebPage::getPageScore(){
     return pageScore;
 }
+
+int WebPage:: index = 0;
