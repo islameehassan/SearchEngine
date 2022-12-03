@@ -3,6 +3,15 @@
         "*.tcc": "cpp",
         "string": "cpp",
         "istream": "cpp",
-        "iosfwd": "cpp"
+        "iosfwd": "cpp",
+        "string_view": "cpp",
+        "regex": "cpp",
+        "new": "cpp",
+        "set": "cpp",
+        "deque": "cpp",
+        "list": "cpp",
+        "unordered_map": "cpp",
+        "unordered_set": "cpp",
+        "vector": "cpp"
     }
 }

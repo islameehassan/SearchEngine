@@ -152,7 +152,7 @@ float SearchEngine::norm(vector<float>& PrevRank, vector<float>& CurrRank){
 
 void SearchEngine::Search(string searchQuery){
     
-    set<string> results;
+    set<string,comp> results;
 
     // Search Query with quotations
     if(searchQuery[0] == '\"'){
@@ -199,24 +199,24 @@ void SearchEngine::Search(string searchQuery){
 }
 
 
-void SearchEngine::displayResults(set<string> results){
+void SearchEngine::displayResults(set<string,comp> results){
 
     if(results.size() == 0)
         cout << "No Web Page found that matches your search\n";
     else{
         int index = 0;
         for(string result:results)
-            cout << ++index << ".\t" << result << '\n';
+            cout << ++index << ". " << result << '\n';
     }
 }
 
 
-set<string>SearchEngine::ANDQuery(set<string> _Keywords){
-    set<string> results;
+set<string,comp>SearchEngine::ANDQuery(set<string> _Keywords){
+    set<string,comp> results;
 
     results = this->Keywords.search(*_Keywords.begin());
     for(string keyword: _Keywords){
-        set<string> temp = Keywords.search(keyword); // extracting the web pages from the trie tree
+        set<string,comp> temp = Keywords.search(keyword); // extracting the web pages from the trie tree
 
         // erasing web pages that do not contain the current keyword
         for(string res: results){
@@ -234,20 +234,20 @@ set<string>SearchEngine::ANDQuery(set<string> _Keywords){
 
 }
 
-set<string> SearchEngine::ORQuery(set<string> _Keywords){
-    set<string> results;
+set<string,comp> SearchEngine::ORQuery(set<string> _Keywords){
+    set<string,comp> results;
 
     for(string keyword: _Keywords){
         // inserting all web pages associated with the keyword
-        set<string> temp = this->Keywords.search(keyword);
-        results.insert(_Keywords.begin(), _Keywords.end());
+        set<string,comp> temp = this->Keywords.search(keyword);
+        results.insert(temp.begin(), temp.end());
     }
 
     return results;
 }
 
-set<string> SearchEngine::QuotationQuery(string keyword){
-    set<string> results;
+set<string,comp> SearchEngine::QuotationQuery(string keyword){
+    set<string,comp> results;
 
     results = this->Keywords.search(keyword);
     return results;

@@ -1,9 +1,11 @@
 #include <bits/stdc++.h>
 #include "SearchEngine.h"
 #include "TrieNode.h"
-using namespace std;
+#include "TrieTree.cpp"
+#include "SearchEngine.cpp"
+#include "WebPage.cpp"
 
-auto comp = [](WebPage A, WebPage B) {return A.getPageScore() > B.getPageScore();};
+using namespace std;
 
 
 
@@ -14,16 +16,20 @@ int main(){
         cout << "FAILURE";
         exit(1);
     }
-    else
-        cout << "SUCCESSS\n";
+    else{
     
 
     SearchEngine MyEngine(webgraph,keywords,impresssions);
 
-    Trie trie = MyEngine.Keywords;
+    MyEngine.PageRankAlgo();
+    MyEngine.Search("objects OR python OR learning");
+
+    // Trie trie = MyEngine.Keywords;
 
 
-    set<string> s = trie.search("data");
-    cout << *s.begin();
+    // set<string> s = trie.search("data");
+    // cout << *s.begin();
+    }
+
 }
     

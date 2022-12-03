@@ -1,38 +1,28 @@
 #include "TrieTree.h"
 
 Trie::Trie(){
-    this->root = createNode();
-}
-
-TrieNode* Trie::createNode(){
-    TrieNode* node = new TrieNode;
-
-    node->isTerminal = false;
-
-    for(int i = 0; i < ALPHAPET; i++)
-        node->children[i] = NULL;
-    
-    return node;
+    root = createNode();
 }
 
 TrieNode* Trie::_insert(string word){
-    TrieNode* nCrawl = this->root;
-    
+    TrieNode* nCrawl = &root;
 
     for(int i = 0; i < word.size();i++){
-        int index = word[i] - 'a';
+        char index = word[i];
+
+        if(nCrawl == NULL)
+            cout << "YES\n";
 
         if(word[i] == ' ')
             continue;
-
         // create a node for a char in the word if not created yet
-        if(!nCrawl->children[index]){
+        if(nCrawl->children.find(index) == nCrawl->children.end()){
             nCrawl->children[index] = createNode();
         }
 
         
         // traverse
-        nCrawl = nCrawl->children[index];
+        nCrawl = &nCrawl->children[index];
     }
     nCrawl->isTerminal = true;
 
@@ -42,21 +32,23 @@ TrieNode* Trie::_insert(string word){
 void Trie::insertWord(string word, string webPageHyperlink){
     TrieNode* node = _insert(word);
     
+
     node->webPagesHyperlinks.insert(webPageHyperlink);
 }
 
 TrieNode* Trie::_search(string word){
-   TrieNode* nCrawl = this->root;
+   TrieNode* nCrawl = &root;
 
    for(int i = 0; i < word.size();i++){
-        int index = word[i] - 'a';
+        char index = word[i];
 
         if(word[i] == ' ')
-            index = 26;
-        if(nCrawl->children[index] == NULL)
+            continue;
+        
+        if(nCrawl->children.find(index) == nCrawl->children.end())
             return NULL;
         
-        nCrawl = nCrawl->children[index];
+        nCrawl = &nCrawl->children[index];
    }
 
    if(nCrawl->isTerminal)
@@ -64,8 +56,8 @@ TrieNode* Trie::_search(string word){
     return NULL;
 }
 
-set<string> Trie::search(string word){
-    set<string> webPagesHyperlinks;
+set<string,comp> Trie::search(string word){
+    set<string,comp> webPagesHyperlinks;
 
     TrieNode* node = _search(word);
     if(node == NULL)
@@ -79,7 +71,7 @@ bool isEmpty(TrieNode* root){
         return false;
     
     for(int i = 0; i < ALPHAPET;i++){
-        if(root->children[i] != NULL)
+        if(root->children[i].isTerminal)
             return false;
     }
     return true;
@@ -90,18 +82,17 @@ TrieNode* Trie::deleteAll(TrieNode* root){
         return NULL;
     
     for(int i = 0; i < ALPHAPET;i++){
-        if(root->children[i] != NULL){
-            deleteAll(root->children[i]);
+        if(root->children[i].isTerminal){
+            deleteAll(&root->children[i]);
         }
     }
 
-    delete root;
     root = NULL;
     return root;
 }
 
 Trie::~Trie(){
-    TrieNode* deletedTrie = deleteAll(this->root);
+    TrieNode* deletedTrie = deleteAll(&root);
     if(deletedTrie != NULL){
         cout << "Error occured while deleting the trie tree\n";
         exit(1); // safe exit from the program

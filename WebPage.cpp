@@ -22,6 +22,9 @@ WebPage::WebPage(const WebPage& W){
     this->pageScore = W.pageScore;
 }
 
+string WebPage::getHyperlink(){
+    return hyperLink;
+}
 void WebPage::setPageRank(float pageRank){
     this->pageRank = pageRank;
 }

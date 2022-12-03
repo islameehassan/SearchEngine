@@ -3,13 +3,16 @@
 #include "TrieNode.h"
 using namespace std;
 
+
+
+
+
 #define ALPHAPET 26
 
 
 
 class Trie{
-    TrieNode* root;
-    TrieNode* createNode(); // create a node in the trie
+    TrieNode root;
     TrieNode* _insert(string word); // insert a new word in the trie
     TrieNode* _search(string word); // search for a given word if it exists in the tree
     bool isEmpty(TrieNode* root); // check if a given node has no children
@@ -21,7 +24,7 @@ public:
     void insertWord(string word, string webPageHyperlink); // insert a word in the tree along with
                                                            // the page's hyperlink this keyword is found in
     
-    set<string> search(string word); // return the list of webpages associated with a keyword, it exists
+    set<string,comp> search(string word); // return the list of webpages associated with a keyword, it exists
 
     ~Trie();
 };

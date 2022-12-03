@@ -1,6 +1,8 @@
 #ifndef SEARCH_ENGINE_H
 #define SEARCH_ENGINE_H
 
+
+
 #include <iostream>
 #include <sstream>
 #include <fstream>
@@ -13,12 +15,12 @@
 #include "TrieTree.h"
 using namespace std;
 
+
 // CONSTANTS
 #define ERROR 0.001
 #define DAMPING 0.15
 
 
-auto comp = [](WebPage A, WebPage B) {return A.getPageScore() > B.getPageScore();};
 
 class SearchEngine{
     public:
@@ -28,14 +30,14 @@ class SearchEngine{
     Trie Keywords; // a trie tree containing all keywords
     map <string,WebPage> WebPages; // associate each webpage to a key, that is its hyperblink
 
-    set<string> ANDQuery(set<string> KeyWords);
-    set<string> ORQuery(set<string> KeyWords);
-    set<string> QuotationQuery(string keyword);
+    set<string,comp> ANDQuery(set<string> KeyWords);
+    set<string,comp> ORQuery(set<string> KeyWords);
+    set<string,comp> QuotationQuery(string keyword);
 
     float norm(vector<float>& PrevRank, vector<float>& CurrRank); // calculate the euclidean norm to check if
                                          // it is the time to stop PageRank or not
     
-    void displayResults(set<string> results); // display the web pages according to the search query
+    void displayResults(set<string,comp> results); // display the web pages according to the search query
     // JumpStart the engine by feeding in all input files to initialize the web Graph and the keywords Trie Tree
     SearchEngine(ifstream &WebGraph,ifstream &KeyWords,ifstream &Impressions);
 
