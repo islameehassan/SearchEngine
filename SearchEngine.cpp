@@ -152,7 +152,7 @@ float SearchEngine::norm(vector<float>& PrevRank, vector<float>& CurrRank){
 
 void SearchEngine::Search(string searchQuery){
     
-    set<string,comp> results;
+    set<string> results;
 
     // Search Query with quotations
     if(searchQuery[0] == '\"'){
@@ -199,7 +199,7 @@ void SearchEngine::Search(string searchQuery){
 }
 
 
-void SearchEngine::displayResults(set<string,comp> results){
+void SearchEngine::displayResults(set<string> results){
 
     if(results.size() == 0)
         cout << "No Web Page found that matches your search\n";
@@ -211,12 +211,12 @@ void SearchEngine::displayResults(set<string,comp> results){
 }
 
 
-set<string,comp>SearchEngine::ANDQuery(set<string> _Keywords){
-    set<string,comp> results;
+set<string>SearchEngine::ANDQuery(set<string> _Keywords){
+    set<string> results;
 
     results = this->Keywords.search(*_Keywords.begin());
     for(string keyword: _Keywords){
-        set<string,comp> temp = Keywords.search(keyword); // extracting the web pages from the trie tree
+        set<string> temp = Keywords.search(keyword); // extracting the web pages from the trie tree
 
         // erasing web pages that do not contain the current keyword
         for(string res: results){
@@ -234,20 +234,20 @@ set<string,comp>SearchEngine::ANDQuery(set<string> _Keywords){
 
 }
 
-set<string,comp> SearchEngine::ORQuery(set<string> _Keywords){
-    set<string,comp> results;
+set<string> SearchEngine::ORQuery(set<string> _Keywords){
+    set<string> results;
 
     for(string keyword: _Keywords){
         // inserting all web pages associated with the keyword
-        set<string,comp> temp = this->Keywords.search(keyword);
+        set<string> temp = this->Keywords.search(keyword);
         results.insert(temp.begin(), temp.end());
     }
 
     return results;
 }
 
-set<string,comp> SearchEngine::QuotationQuery(string keyword){
-    set<string,comp> results;
+set<string> SearchEngine::QuotationQuery(string keyword){
+    set<string> results;
 
     results = this->Keywords.search(keyword);
     return results;

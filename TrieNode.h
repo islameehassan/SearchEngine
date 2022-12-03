@@ -18,7 +18,7 @@ const int ALPHA_SIZE = 26;
 
 struct TrieNode {
    public:
-   set<string,comp> webPagesHyperlinks;
+   set<string> webPagesHyperlinks;
    unordered_map<char, TrieNode> children;
    bool isTerminal; //It is true if node represents end of word.
 };
@@ -26,7 +26,7 @@ struct TrieNode {
 TrieNode createNode(){ //creation of new node {
    TrieNode tNode;
    tNode.isTerminal = false;
-   set<string,comp> empty;
+   set<string> empty;
    tNode.webPagesHyperlinks = empty;
    return tNode;
 }

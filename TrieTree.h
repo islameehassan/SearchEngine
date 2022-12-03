@@ -24,7 +24,7 @@ public:
     void insertWord(string word, string webPageHyperlink); // insert a word in the tree along with
                                                            // the page's hyperlink this keyword is found in
     
-    set<string,comp> search(string word); // return the list of webpages associated with a keyword, it exists
+    set<string> search(string word); // return the list of webpages associated with a keyword, it exists
 
     ~Trie();
 };

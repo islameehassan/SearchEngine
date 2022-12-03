@@ -56,8 +56,8 @@ TrieNode* Trie::_search(string word){
     return NULL;
 }
 
-set<string,comp> Trie::search(string word){
-    set<string,comp> webPagesHyperlinks;
+set<string> Trie::search(string word){
+    set<string> webPagesHyperlinks;
 
     TrieNode* node = _search(word);
     if(node == NULL)
