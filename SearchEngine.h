@@ -12,11 +12,13 @@
 #include "WebPage.h"
 #include "TrieTree.h"
 using namespace std;
+
 // CONSTANTS
 #define ERROR 0.001
 #define DAMPING 0.15
 
 
+auto comp = [](WebPage A, WebPage B) {return A.getPageScore() > B.getPageScore();};
 
 class SearchEngine{
     public:

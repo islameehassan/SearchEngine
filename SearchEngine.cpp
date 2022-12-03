@@ -26,11 +26,13 @@ SearchEngine::SearchEngine(ifstream &WebGraphFile,ifstream &KeywordsFile,ifstrea
     }
     KeywordsFile.close();
 
+
     // Get # of impressions from the impressions file
     line = "";
     getline(ImpressionsFile,line);
-    int noOfWebPages; // no of web pages is the number of lines in this file
+    int noOfWebPages = 0; // no of web pages is the number of lines in this file
     while(line != ""){
+
         noOfWebPages++;
 
         stringstream s(line);
@@ -46,7 +48,7 @@ SearchEngine::SearchEngine(ifstream &WebGraphFile,ifstream &KeywordsFile,ifstrea
         getline(s,temp,',');
         noImpressions = stoi(temp);
 
-        getline(s,temp,'\n');
+        getline(s,temp);
         noClicks = stoi(temp);
 
         // set the web page's number of clicks and impressions
@@ -58,18 +60,17 @@ SearchEngine::SearchEngine(ifstream &WebGraphFile,ifstream &KeywordsFile,ifstrea
     ImpressionsFile.close();
 
     // Build the web graph 
-    freopen("WebGraph.csv","r",stdin);
     line = "";
 
     // resize the web graph matrix
     this->noWebPages = noOfWebPages;
     WebGraph.resize(noOfWebPages+1);
-    for(vector<float> v: WebGraph)
+    for(vector<float>& v: WebGraph)
         v.resize(noOfWebPages+1);
     
     int index = 0;
-    while(!WebGraphFile.eof()){
-        getline(cin,line);
+    getline(WebGraphFile,line);
+    while(line != ""){
         stringstream s(line);
 
         // get the hyperlink of the first web page
@@ -88,19 +89,23 @@ SearchEngine::SearchEngine(ifstream &WebGraphFile,ifstream &KeywordsFile,ifstrea
         
         // mark that there is an edge from web page 1 to web page 2, equal to 1 - DAMPING FACTOR
         WebGraph[indexInWebGraph2][indexInWebGraph1] = 1 - DAMPING;
+        getline(WebGraphFile,line);
+
     }
     WebGraphFile.close();
+
+    PageRank.resize(noOfWebPages);
 }
 
 void SearchEngine::PageRankAlgo(){
     // Store the ranks of pages in he current and previous iteration for comparison purposes
-    vector<float> CurrPageRank(noWebPages+1);
+    vector<float> CurrPageRank(noWebPages+1, 1.0/noWebPages);
     vector<float> PrevPageRank(noWebPages+1,1.0/noWebPages);
 
     int i = 1;
-    for(auto p: WebPages){
+    for(auto& p: WebPages){
         int links = p.second.getOutGoingLinks();
-        int index = p.second.index;
+        int index = p.second.webPageIndex;
         for(int j = 1; j <= noWebPages; j++){
             WebGraph[j][index] *= 1.0/links;
         }
@@ -112,11 +117,12 @@ void SearchEngine::PageRankAlgo(){
 
     // Do the iterations 
     do{
-
+        for(int i = 1; i <=noWebPages; i++)
+            PrevPageRank[i] = CurrPageRank[i];
         for(int i = 1; i <= noWebPages; i++){
             float score = 0;
             for(int j = 1; j <= noWebPages; j++){
-                score = score + (WebGraph[j][i] * PrevPageRank[j]);
+                score = score + (WebGraph[i][j] * PrevPageRank[j]);
             }
             CurrPageRank[i] = score + (1.0/noWebPages * DAMPING); // adding the damping factor 
         }
