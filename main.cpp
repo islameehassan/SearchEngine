@@ -7,6 +7,14 @@
 
 using namespace std;
 
+// struct comp {
+//     bool operator()(WebPage A, WebPage B) const {
+//         if(A.getPageScore() < B.getPageScore())
+//           return A.getPageScore() < B.getPageScore();
+//         return A.getHyperlink() < B.getHyperlink();
+//     }
+// };
+
 
 
 int main(){
@@ -22,14 +30,9 @@ int main(){
     SearchEngine MyEngine(webgraph,keywords,impresssions);
 
     MyEngine.PageRankAlgo();
-    MyEngine.Search("objects OR python OR learning");
-
-    // Trie trie = MyEngine.Keywords;
+    MyEngine.Search("objects AND python AND learning");
 
 
-    // set<string>> s = trie.search("data");
-    // cout << *s.begin();
     }
-
 }
     

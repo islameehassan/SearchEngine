@@ -50,6 +50,4 @@ class SearchEngine{
     void RunEngine();
 };
 
-
-
 #endif

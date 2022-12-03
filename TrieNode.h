@@ -8,8 +8,8 @@ using namespace std;
 
 struct comp {
     bool operator()(WebPage A, WebPage B) const {
-        if(A.getPageScore() < B.getPageScore())
-          return A.getPageScore() < B.getPageScore();
+        if(A.getPageScore() != B.getPageScore())
+          return A.getPageScore() > B.getPageScore();
         return A.getHyperlink() < B.getHyperlink();
     }
 };

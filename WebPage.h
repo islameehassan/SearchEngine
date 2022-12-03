@@ -30,8 +30,9 @@ public:
     void setPageRank(float pageRank);
     float getPageRank();
 
+    void setHyperlink(string hyperlink);
     string getHyperlink();
-    
+
     void updatePageScore();
     float getPageScore();
 

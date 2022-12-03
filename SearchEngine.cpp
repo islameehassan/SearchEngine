@@ -137,6 +137,11 @@ void SearchEngine::PageRankAlgo(){
     for(int i = 1; i <= CurrPageRank.size(); i++){
         PageRank[i] = CurrPageRank[i];
     }
+
+    i = 1;
+    for(auto& p: WebPages){
+        p.second.setPageRank(PageRank[i++]);
+    }
     
 }
 
@@ -235,15 +240,25 @@ set<string>SearchEngine::ANDQuery(set<string> _Keywords){
 }
 
 set<string> SearchEngine::ORQuery(set<string> _Keywords){
-    set<string> results;
+    set<string> temp;
+
+    set<WebPage,comp> results;
+    set<string> result;
+
 
     for(string keyword: _Keywords){
         // inserting all web pages associated with the keyword
         set<string> temp = this->Keywords.search(keyword);
-        results.insert(temp.begin(), temp.end());
+        for(string t: temp)
+            results.insert(WebPages[t]);
+        
     }
+        int index = 0;
+        for(WebPage A:results)
+            cout << ++index << ". " << A.getHyperlink() << '\n';
 
-    return results;
+
+    return result;
 }
 
 set<string> SearchEngine::QuotationQuery(string keyword){

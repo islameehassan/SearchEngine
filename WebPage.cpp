@@ -6,7 +6,7 @@ WebPage::WebPage(string hyperlink){
     index++;
     
     webPageIndex = index;
-    this->hyperLink = hyperLink;
+    this->hyperLink = hyperlink;
     this->clicks = 0;
     this->impressions = 0;
     this->outGoingLinks = 0;
@@ -22,11 +22,15 @@ WebPage::WebPage(const WebPage& W){
     this->pageScore = W.pageScore;
 }
 
+void WebPage::setHyperlink(string hyperlink){
+    this->hyperLink = hyperLink;
+}
 string WebPage::getHyperlink(){
     return hyperLink;
 }
 void WebPage::setPageRank(float pageRank){
     this->pageRank = pageRank;
+    updatePageScore();
 }
 
 float WebPage::getPageRank(){
