@@ -17,7 +17,9 @@ using namespace std;
 
 
 
-int main(){
+int main()
+{
+
     ifstream webgraph("web_graph.csv"), keywords("keywords.csv"), impresssions("impressions.csv");
 
     if(webgraph.fail() || keywords.fail() || impresssions.fail()){
@@ -25,14 +27,10 @@ int main(){
         exit(1);
     }
     else{
-    
+        SearchEngine MyEngine(webgraph,keywords,impresssions);
 
-    SearchEngine MyEngine(webgraph,keywords,impresssions);
-
-    MyEngine.PageRankAlgo();
-    MyEngine.Search("objects AND python AND learning");
-
-
+        MyEngine.PageRankAlgo();
+        MyEngine.Menu();
     }
 }
     

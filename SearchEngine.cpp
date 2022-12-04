@@ -32,8 +32,7 @@ SearchEngine::SearchEngine(ifstream &WebGraphFile,ifstream &KeywordsFile,ifstrea
     getline(ImpressionsFile,line);
     int noOfWebPages = 0; // no of web pages is the number of lines in this file
     while(line != ""){
-
-        noOfWebPages++;
+         noOfWebPages++;
 
         stringstream s(line);
 
@@ -157,7 +156,7 @@ float SearchEngine::norm(vector<float>& PrevRank, vector<float>& CurrRank){
 
 void SearchEngine::Search(string searchQuery){
     
-    set<string> results;
+    vector<string> results;
 
     // Search Query with quotations
     if(searchQuery[0] == '\"'){
@@ -200,50 +199,53 @@ void SearchEngine::Search(string searchQuery){
         // display results
         displayResults(results);
     }
+    SearchResults = results;
 
 }
 
 
-void SearchEngine::displayResults(set<string> results){
+void SearchEngine::displayResults(vector<string> results){
 
     if(results.size() == 0)
         cout << "No Web Page found that matches your search\n";
     else{
         int index = 0;
-        for(string result:results)
+        for(string result:results){
             cout << ++index << ". " << result << '\n';
+            WebPages[result].updateImpressions();
+        }
     }
 }
 
 
-set<string>SearchEngine::ANDQuery(set<string> _Keywords){
-    set<string> results;
+vector<string>SearchEngine::ANDQuery(set<string> _Keywords){
+    vector<string> results;
 
-    results = this->Keywords.search(*_Keywords.begin());
     for(string keyword: _Keywords){
         set<string> temp = Keywords.search(keyword); // extracting the web pages from the trie tree
 
         // erasing web pages that do not contain the current keyword
-        for(string res: results){
-            if(temp.find(res) == temp.end()){
-                results.erase(res);
+        for(auto it = results.begin(); it != results.end(); it++){
+            if(temp.find(*it) == temp.end()){
+                results.erase(it);
             }
         }
 
-        // CORNER CASE: the first keyword does not have any web pages associated with it
-        if(results.size() == 0)
-            results = temp;
+        int index = 0;
+        if(results.size() == 0){
+            for(string t: temp)
+                results[index] = t;
+        }
     }
 
     return results;
 
 }
 
-set<string> SearchEngine::ORQuery(set<string> _Keywords){
+vector<string> SearchEngine::ORQuery(set<string> _Keywords){
     set<string> temp;
 
     set<WebPage,comp> results;
-    set<string> result;
 
 
     for(string keyword: _Keywords){
@@ -253,17 +255,153 @@ set<string> SearchEngine::ORQuery(set<string> _Keywords){
             results.insert(WebPages[t]);
         
     }
-        int index = 0;
-        for(WebPage A:results)
-            cout << ++index << ". " << A.getHyperlink() << '\n';
+    vector<string> result;
+    int index = 0;
+    for(WebPage A:results)
+        result.push_back(A.getHyperlink());
 
 
     return result;
 }
 
-set<string> SearchEngine::QuotationQuery(string keyword){
-    set<string> results;
+vector<string> SearchEngine::QuotationQuery(string keyword){
+    vector<string> result;
 
-    results = this->Keywords.search(keyword);
-    return results;
+    set<WebPage,comp> results;
+
+    // inserting all web pages associated with the keyword
+    set<string> temp = this->Keywords.search(keyword);
+    for(string t: temp)
+        results.insert(WebPages[t]);
+    
+    for(WebPage A: results)
+        result.push_back(A.getHyperlink());
+    
+    return result;
+}
+
+void SearchEngine:: Update(int choice){
+    string hyperlink = SearchResults[choice - 1];
+
+    WebPages[hyperlink].updateClicks();
+}
+void SearchEngine:: Menu()
+{
+    cout << "Welcome!\n"; 
+    reset_label:
+    cout << "What would you like to do?\n"; 
+    int choice; 
+    cout << "1. New search\n"; 
+    cout << "2. Exit\n"; 
+    cout << "\nType in your choice: "; 
+    cin >> choice;
+    while(true)
+    {
+        /* int choice; 
+        cout << "1. New search\n"; 
+        cout << "2. Exit\n"; 
+        cout << "\nType in your choice: "; 
+        cin >> choice;  */
+        if(choice == 2)
+        {
+            break;
+        }
+        else if(choice == 1)
+        {
+            newsearch_label:
+            int choice2;
+            string query;
+            cout << "Enter your search: ";
+            cin >> query; 
+            cout << "\nSearch Results:\n";
+
+            Search(query);
+
+            if(SearchResults.size() != 0)
+            {
+                results_label:
+                cout << "\nWould you like to\n";
+                cout << "1. Choose a webpage to open\n"; 
+                cout << "2. New search\n"; 
+                cout << "3. Exit\n"; 
+                cout << "\nType in your choice: ";
+                cin >> choice2;
+
+                if(choice2 == 3)
+                {
+                    goto final_label;
+                }
+                else if(choice2 == 2)
+                {
+                    goto newsearch_label;
+                }
+                else if(choice2 == 1)
+                {
+                    int webpage_choice;
+                    cout << "Which webpage you want to disply? ";
+                    cin >> webpage_choice;
+                    while (webpage_choice > SearchResults.size() || webpage_choice < 1)
+                    {
+                        cout << "Please enter a valid choice: ";
+                        cin >> webpage_choice;
+                    }
+                    cout << "You are currently viewing " << SearchResults[webpage_choice-1] << endl;
+                    Update(webpage_choice);
+
+                    int choice3;
+                    cout << "Would you like to\n";
+                    cout << "1. Back to search results\n"; 
+                    cout << "2. New search\n"; 
+                    cout << "3. Exit\n"; 
+                    cout << "\nType in your choice: ";
+                    cin >> choice3;
+                    while(choice3 > 3 || choice3 < 1)
+                    {
+                        cout << "Please enter a valid choice: ";
+                        cin >> choice3;
+                    }
+                    if (choice3 == 1)
+                    {
+                        int index = 0;
+                        for(string result:SearchResults)
+                        {
+                            cout << ++index << ". " << result << '\n';
+                        }
+                        goto results_label;
+                    }
+                    else if(choice3 == 2)
+                    {
+                        goto newsearch_label;
+                    }
+                    else
+                    {
+                        goto final_label;
+                    }
+                }
+            }
+            else
+            {
+                goto reset_label;
+            }
+        }
+        else
+        {
+            cout << "Enter a valid choice "; 
+        }
+    }
+    final_label:
+    return;
+}
+
+SearchEngine::~SearchEngine(){
+    ofstream ImpressionsFile;
+    ofstream PageScores;
+
+    ImpressionsFile.open("impressions.csv");
+    PageScores.open("PageScore.csv");
+
+    for(auto it = WebPages.begin(); it != WebPages.end(); it++){
+        ImpressionsFile << it->first << "," << it->second.getImpressions() << "," << it->second.getClicks() << '\n';
+        PageScores << it->first << "," << it->second.getPageScore() << "," << it->second.getPageRank() << '\n';
+    }
 }
