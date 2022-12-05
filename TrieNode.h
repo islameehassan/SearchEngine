@@ -1,9 +1,10 @@
-#ifndef TRIENODE_H
-#define TRIENODE_H
+#ifndef Node_H
+#define Node_H
 #include <iostream>
 #include <set>
 #include <map>
 #include <unordered_map>
+#include "WebPage.h"
 using namespace std;
 
 
@@ -17,15 +18,15 @@ struct comp {
 
 const int ALPHA_SIZE = 26;
 
-struct TrieNode {
+struct Node {
    public:
-   set<string> webPagesHyperlinks;
-   unordered_map<char, TrieNode> children;
-   bool isTerminal; //It is true if node represents end of word.
+   set<string> webPagesHyperlinks; // web pages associated with the word inserted
+   unordered_map<char, Node> children; // each char has 26 subsequent characters
+   bool isTerminal; //flags the end of the word if true
 };
 
-TrieNode createNode(){ //creation of new node {
-   TrieNode tNode;
+Node createNode(){ //creation of new node
+   Node tNode;
    tNode.isTerminal = false;
    set<string> empty;
    tNode.webPagesHyperlinks = empty;

@@ -1,40 +1,47 @@
 #include "SearchEngine.h"
 
 SearchEngine::SearchEngine(ifstream &WebGraphFile,ifstream &KeywordsFile,ifstream &ImpressionsFile){
-    Keywords = Trie(); // init the trie tree
+    initKeywords(KeywordsFile);
+    initImpressionsandClicks(ImpressionsFile);
+    initWebGraph(WebGraphFile);
+}
 
-    // Get the keywords from the Keywords file
-    string line;
-    getline(KeywordsFile,line);
+void SearchEngine::initKeywords(ifstream& KeywordsFile){
+    // init the trie tree
+    this->Keywords = Trie();
 
-
-    while(line != ""){
-        stringstream s(line);
+    // read the file line by line
+    string input;
+    getline(KeywordsFile,input);
+    while(input != ""){
+        stringstream s(input);
 
         // get the hyperlink of the webpage
         string hyperlink;
         getline(s,hyperlink,',');
-        // map each web page object to its hyperlink through the WebPages Map
+
+        // map each web page object to its hyperlink through the WebPages map
         // insert the keyword along with the hyperlink of the web page in the trie tree
         string keyWord;
         WebPages[hyperlink] = WebPage(hyperlink);
         while(getline(s,keyWord, ',') || getline(s,keyWord, '\n')){
-            Keywords.insertWord(keyWord, hyperlink);
+            Keywords.insertKey(keyWord, hyperlink);
         }
-
-        getline(KeywordsFile,line);
+        getline(KeywordsFile,input);
     }
     KeywordsFile.close();
+}
 
+void SearchEngine::initImpressionsandClicks(ifstream& ImpressionsFile){
 
     // Get # of impressions from the impressions file
-    line = "";
-    getline(ImpressionsFile,line);
-    int noOfWebPages = 0; // no of web pages is the number of lines in this file
-    while(line != ""){
-         noOfWebPages++;
+    string input = "";
+    getline(ImpressionsFile,input);
 
-        stringstream s(line);
+    int noOfWebPages = 0;
+    while(input != ""){
+         noOfWebPages++;
+        stringstream s(input);
 
         // get the hyperlink of the webpage
         string hyperlink;
@@ -54,48 +61,48 @@ SearchEngine::SearchEngine(ifstream &WebGraphFile,ifstream &KeywordsFile,ifstrea
         WebPages[hyperlink].setImpressions(noImpressions);
         WebPages[hyperlink].setClicks(noClicks);
 
-        getline(ImpressionsFile, line);
+        getline(ImpressionsFile, input);
     }
     ImpressionsFile.close();
 
-    // Build the web graph 
-    line = "";
-
-    // resize the web graph matrix
     this->noWebPages = noOfWebPages;
-    WebGraph.resize(noOfWebPages+1);
+}
+
+void SearchEngine::initWebGraph(ifstream& WebGraphFile){
+    string input = "";
+
+    // resize the adjacency matrix web graph to be of size noWebPages*noWebPages
+    WebGraph.resize(noWebPages+1);
     for(vector<float>& v: WebGraph)
-        v.resize(noOfWebPages+1);
+        v.resize(noWebPages+1);
     
     int index = 0;
-    getline(WebGraphFile,line);
-    while(line != ""){
-        stringstream s(line);
+    getline(WebGraphFile,input);
+    while(input != ""){
+        stringstream s(input);
 
-        // get the hyperlink of the first web page
+        // extract the first web page's hyperlink
         string hyperlink1;
         getline(s,hyperlink1,',');
 
-        WebPages[hyperlink1].updateOutGoingLinks(); // increase the outgoing links of the first web page by one
+        // increment the outgoing links of the first web page by one
+        WebPages[hyperlink1].updateOutGoingLinks();
 
-        // get the hyperlink of the second web page
+        // extract the second web page's hyperlink
         string hyperlink2;
         getline(s,hyperlink2,'\n');
         
         // get the indices of the web pages in the Web Graph
-        int indexInWebGraph1 = WebPages[hyperlink1].webPageIndex;
-        int indexInWebGraph2 = WebPages[hyperlink2].webPageIndex;
+        int index1 = WebPages[hyperlink1].webPageIndex;
+        int index2 = WebPages[hyperlink2].webPageIndex;
         
         // mark that there is an edge from web page 1 to web page 2, equal to 1 - DAMPING FACTOR
-        WebGraph[indexInWebGraph2][indexInWebGraph1] = 1 - DAMPING;
-        getline(WebGraphFile,line);
-
-    }
+        WebGraph[index1][index2] = 1 - DAMPING;
+        getline(WebGraphFile,input);
+    }    
     WebGraphFile.close();
-
-    PageRank.resize(noOfWebPages);
+    PageRank.resize(noWebPages);
 }
-
 void SearchEngine::PageRankAlgo(){
     // Store the ranks of pages in he current and previous iteration for comparison purposes
     vector<float> CurrPageRank(noWebPages+1, 1.0/noWebPages);
@@ -222,7 +229,7 @@ vector<string>SearchEngine::ANDQuery(set<string> _Keywords){
     vector<string> results;
 
     for(string keyword: _Keywords){
-        set<string> temp = Keywords.search(keyword); // extracting the web pages from the trie tree
+        set<string> temp = Keywords.searchword(keyword); // extracting the web pages from the trie tree
 
         // erasing web pages that do not contain the current keyword
         for(auto it = results.begin(); it != results.end(); it++){
@@ -250,7 +257,7 @@ vector<string> SearchEngine::ORQuery(set<string> _Keywords){
 
     for(string keyword: _Keywords){
         // inserting all web pages associated with the keyword
-        set<string> temp = this->Keywords.search(keyword);
+        set<string> temp = this->Keywords.searchword(keyword);
         for(string t: temp)
             results.insert(WebPages[t]);
         
@@ -270,7 +277,7 @@ vector<string> SearchEngine::QuotationQuery(string keyword){
     set<WebPage,comp> results;
 
     // inserting all web pages associated with the keyword
-    set<string> temp = this->Keywords.search(keyword);
+    set<string> temp = this->Keywords.searchword(keyword);
     for(string t: temp)
         results.insert(WebPages[t]);
     
@@ -285,10 +292,11 @@ void SearchEngine:: Update(int choice){
 
     WebPages[hyperlink].updateClicks();
 }
+
 void SearchEngine:: Menu()
 {
     cout << "Welcome!\n"; 
-    reset_label:
+    start:
     cout << "What would you like to do?\n"; 
     int choice; 
     cout << "1. New search\n"; 
@@ -297,18 +305,13 @@ void SearchEngine:: Menu()
     cin >> choice;
     while(true)
     {
-        /* int choice; 
-        cout << "1. New search\n"; 
-        cout << "2. Exit\n"; 
-        cout << "\nType in your choice: "; 
-        cin >> choice;  */
         if(choice == 2)
         {
             break;
         }
         else if(choice == 1)
         {
-            newsearch_label:
+            newsearch:
             int choice2;
             string query;
             cout << "Enter your search: ";
@@ -329,11 +332,11 @@ void SearchEngine:: Menu()
 
                 if(choice2 == 3)
                 {
-                    goto final_label;
+                    goto terminate;
                 }
                 else if(choice2 == 2)
                 {
-                    goto newsearch_label;
+                    goto newsearch;
                 }
                 else if(choice2 == 1)
                 {
@@ -371,17 +374,17 @@ void SearchEngine:: Menu()
                     }
                     else if(choice3 == 2)
                     {
-                        goto newsearch_label;
+                        goto newsearch;
                     }
                     else
                     {
-                        goto final_label;
+                        goto terminate;
                     }
                 }
             }
             else
             {
-                goto reset_label;
+                goto start;
             }
         }
         else
@@ -389,19 +392,27 @@ void SearchEngine:: Menu()
             cout << "Enter a valid choice "; 
         }
     }
-    final_label:
+    terminate:
     return;
 }
+
+
+void SearchEngine::RunEngine(){
+    PageRankAlgo();
+    Menu();
+}
+
 
 SearchEngine::~SearchEngine(){
     ofstream ImpressionsFile;
     ofstream PageScores;
 
     ImpressionsFile.open("impressions.csv");
+    // file used to validate score
     PageScores.open("PageScore.csv");
 
-    for(auto it = WebPages.begin(); it != WebPages.end(); it++){
-        ImpressionsFile << it->first << "," << it->second.getImpressions() << "," << it->second.getClicks() << '\n';
-        PageScores << it->first << "," << it->second.getPageScore() << "," << it->second.getPageRank() << '\n';
+    for(auto& it: WebPages){
+        ImpressionsFile << it.first << "," << it.second.getImpressions() << "," << it.second.getClicks() << '\n';
+        PageScores << it.first << "," << it.second.getPageRank() << "," << it.second.getPageScore() << '\n';
     }
 }

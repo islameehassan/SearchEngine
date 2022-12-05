@@ -4,40 +4,44 @@ Trie::Trie(){
     root = createNode();
 }
 
-TrieNode* Trie::_insert(string word){
-    TrieNode* nCrawl = &root;
+Node* Trie::insert(string word){
+
+    // create the pointer that will traverse the tree, which is initially pointing to the
+    // the root
+    Node* nCrawl = &root;
 
     for(int i = 0; i < word.size();i++){
         char index = word[i];
 
-        if(nCrawl == NULL)
-            cout << "YES\n";
-
+        // Skip the space character
         if(word[i] == ' ')
             continue;
+        
+
         // create a node for a char in the word if not created yet
-        if(nCrawl->children.find(index) == nCrawl->children.end()){
-            nCrawl->children[index] = createNode();
+        if(nCrawl->Children.find(index) == nCrawl->Children.end()){
+            nCrawl->Children[index] = createNode();
         }
 
         
         // traverse
-        nCrawl = &nCrawl->children[index];
+        nCrawl = &nCrawl->Children[index];
     }
+    // mark the last word's bool as true to know that we have reached the end of a keyword
     nCrawl->isTerminal = true;
 
     return nCrawl;
 }
 
-void Trie::insertWord(string word, string webPageHyperlink){
-    TrieNode* node = _insert(word);
-    
+void Trie::insertKey(string word, string hyperlink){
+    Node* node = insert(word);
 
-    node->webPagesHyperlinks.insert(webPageHyperlink);
+    // add the hyperlink associated with the word inserted in the tree
+    node->Hyperlinks.insert(hyperlink);
 }
 
-TrieNode* Trie::_search(string word){
-   TrieNode* nCrawl = &root;
+Node* Trie::search(string word){
+   Node* nCrawl = &root;
 
    for(int i = 0; i < word.size();i++){
         char index = word[i];
@@ -45,45 +49,48 @@ TrieNode* Trie::_search(string word){
         if(word[i] == ' ')
             continue;
         
-        if(nCrawl->children.find(index) == nCrawl->children.end())
+        if(nCrawl->Children.find(index) == nCrawl->Children.end())
             return NULL;
         
-        nCrawl = &nCrawl->children[index];
+        nCrawl = &nCrawl->Children[index];
    }
 
+   // if the last character's bool is true, then we have found a word
    if(nCrawl->isTerminal)
         return nCrawl;
     return NULL;
 }
 
-set<string> Trie::search(string word){
-    set<string> webPagesHyperlinks;
+set<string> Trie::searchword(string word){
+    set<string> Hyperlinks;
 
-    TrieNode* node = _search(word);
+    Node* node = search(word);
+
+    // node is NULL, and thus no hyperlinks have been found
     if(node == NULL)
-        return webPagesHyperlinks;
+        return Hyperlinks;
     
-    return node->webPagesHyperlinks;
+    return node->Hyperlinks;
 }
 
-bool isEmpty(TrieNode* root){
+bool isEmpty(Node* root){
     if(root == NULL)
         return false;
     
     for(int i = 0; i < ALPHAPET;i++){
-        if(root->children[i].isTerminal)
+        if(root->Children[i].isTerminal)
             return false;
     }
     return true;
 }
 
-TrieNode* Trie::deleteAll(TrieNode* root){
+Node* Trie::deleteTree(Node* root){
     if(root == NULL)
         return NULL;
     
     for(int i = 0; i < ALPHAPET;i++){
-        if(root->children[i].isTerminal){
-            deleteAll(&root->children[i]);
+        if(root->Children[i].isTerminal){
+            deleteTree(&root->Children[i]);
         }
     }
 
@@ -92,7 +99,7 @@ TrieNode* Trie::deleteAll(TrieNode* root){
 }
 
 Trie::~Trie(){
-    TrieNode* deletedTrie = deleteAll(&root);
+    Node* deletedTrie = deleteTree(&root);
     if(deletedTrie != NULL){
         cout << "Error occured while deleting the trie tree\n";
         exit(1); // safe exit from the program

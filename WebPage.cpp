@@ -53,6 +53,7 @@ int WebPage::getClicks(){
 
 void WebPage::setImpressions(int impressions){
     this->impressions = impressions;
+    clickThroughRate = clicks/(impressions*1.0);
 }
 
 void WebPage::updateImpressions(){
